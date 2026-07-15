@@ -386,6 +386,8 @@
 #include "sql/engine/expr/ob_expr_ai/ob_expr_ai_embed.h"
 #include "sql/engine/expr/ob_expr_ai/ob_expr_ai_rerank.h"
 #include "sql/engine/expr/ob_expr_ai/ob_expr_ai_prompt.h"
+#include "sql/engine/expr/ob_expr_ai/ob_expr_ai_load_file.h"
+#include "sql/engine/expr/ob_expr_ai/ob_expr_ai_split_document.h"
 #include "ob_expr_vector_similarity.h"
 #include "ob_expr_check_location_access.h"
 
@@ -1336,6 +1338,7 @@ static ObExpr::EvalFunc g_expr_eval_functions[] = {
   ObExprAIComplete::eval_ai_complete,                                  /* 857 */
   ObExprAIEmbed::eval_ai_embed,                                        /* 858 */
   ObExprAIRerank::eval_ai_rerank,                                      /* 859 */
+  ObExprAiLoadFile::eval_ai_load_file,                                 /* 860 */
   ObExprAIPrompt::eval_ai_prompt,                                      /* 870 */
   ObExprVectorL2Similarity::calc_l2_similarity,                        /* 871 */
   ObExprVectorCosineSimilarity::calc_cosine_similarity,                /* 872 */
