@@ -723,6 +723,7 @@ class ObJsonTableOp;
 REGISTER_OPERATOR(ObLogJsonTable, PHY_JSON_TABLE, ObJsonTableSpec,
                   ObJsonTableOp, NOINPUT);
 
+class ObAiSplitDocumentSpec;
 class ObAiSplitDocumentOp;
 REGISTER_OPERATOR(ObLogFunctionTable, PHY_AI_SPLIT_DOCUMENT, ObAiSplitDocumentSpec,
                   ObAiSplitDocumentOp, NOINPUT);
