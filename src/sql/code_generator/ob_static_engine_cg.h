@@ -124,7 +124,6 @@ class ObTempTableTransformationVecOpSpec;
 class ObErrLogSpec;
 class ObSelectIntoSpec;
 class ObFunctionTableSpec;
-class ObAiSplitDocumentSpec;
 class ObLinkDmlSpec;
 class ObInsertAllTableInfo;
 class ObTableInsertAllSpec;
@@ -450,7 +449,6 @@ private:
   int generate_spec(ObLogInsert &op, ObPxMultiPartSSTableInsertVecSpec &spec, const bool in_root_job);
   int generate_spec(ObLogSelectInto &op, ObSelectIntoSpec &spec, const bool in_root_job);
   int generate_spec(ObLogFunctionTable &op, ObFunctionTableSpec &spec, const bool in_root_job);
-  int generate_spec(ObLogFunctionTable &op, ObAiSplitDocumentSpec &spec, const bool in_root_job);
   int generate_spec(ObLogJsonTable &op, ObJsonTableSpec &spec, const bool in_root_job);
 
   // online optimizer stats gathering

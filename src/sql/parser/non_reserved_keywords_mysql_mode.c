@@ -31,7 +31,6 @@ static const NonReservedKeyword Mysql_none_reserved_keywords[] =
   {"accessible", ACCESSIBLE},
   {"access_info", ACCESS_INFO},
   {"ai", AI},
-  {"ai_split_document", AI_SPLIT_DOCUMENT},
   {"account", ACCOUNT},
   {"action", ACTION},
   {"activate", ACTIVATE},

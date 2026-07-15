@@ -30,7 +30,6 @@
 #include "sql/optimizer/ob_log_expr_values.h"
 #include "sql/optimizer/ob_log_function_table.h"
 #include "sql/optimizer/ob_log_json_table.h"
-#include "sql/engine/basic/ob_ai_split_document_op.h"
 #include "sql/optimizer/ob_log_values.h"
 #include "sql/optimizer/ob_log_subplan_filter.h"
 #include "sql/optimizer/ob_log_subplan_scan.h"
@@ -7977,73 +7976,6 @@ int ObStaticEngineCG::generate_spec(ObLogFunctionTable &op, ObFunctionTableSpec 
   return ret;
 }
 
-int ObStaticEngineCG::generate_spec(ObLogFunctionTable &op, ObAiSplitDocumentSpec &spec,
-    const bool in_root_job)
-{
-  UNUSED(in_root_job);
-  ObIAllocator &alloc = phy_plan_->get_allocator();
-  ObRawExpr *value_raw_expr = nullptr;
-  ObExpr *content_expr = nullptr;
-  ObExpr *params_expr = nullptr;
-  int ret = OB_SUCCESS;
-  if (OB_ISNULL(op.get_stmt())) {
-    ret = OB_ERR_UNEXPECTED;
-    LOG_WARN("failed to get stmt", K(ret));
-  } else if (OB_FAIL(spec.column_exprs_.init(op.get_stmt()->get_column_size()))) {
-    LOG_WARN("failed to init array", K(ret));
-  } else if (OB_ISNULL(value_raw_expr = op.get_value_expr())) {
-    ret = OB_ERR_UNEXPECTED;
-    LOG_WARN("failed to get value raw expr", K(ret));
-  } else if (T_FUN_SYS_AI_SPLIT_DOCUMENT != value_raw_expr->get_expr_type()) {
-    ret = OB_ERR_UNEXPECTED;
-    LOG_WARN("unexpected expr type", K(ret), K(value_raw_expr->get_expr_type()));
-  } else {
-    // Extract content (first arg) and params (second arg, optional)
-    const ObRawExpr *content_raw = value_raw_expr->get_param_expr(0);
-    if (OB_ISNULL(content_raw)) {
-      ret = OB_ERR_UNEXPECTED;
-      LOG_WARN("content expr is null", K(ret));
-    } else if (OB_FAIL(generate_rt_expr(*content_raw, content_expr))) {
-      LOG_WARN("failed to generate rt expr for content", K(ret));
-    } else {
-      spec.content_expr_ = content_expr;
-    }
-    
-    if (OB_SUCC(ret) && value_raw_expr->get_param_count() > 1) {
-      const ObRawExpr *params_raw = value_raw_expr->get_param_expr(1);
-      if (OB_NOT_NULL(params_raw)) {
-        if (OB_FAIL(generate_rt_expr(*params_raw, params_expr))) {
-          LOG_WARN("failed to generate rt expr for params", K(ret));
-        } else {
-          spec.params_expr_ = params_expr;
-        }
-      }
-    }
-    
-    if (OB_SUCC(ret)) {
-      for (int64_t i = 0; OB_SUCC(ret) && i < op.get_output_exprs().count(); ++i) {
-        if (OB_FAIL(mark_expr_self_produced(op.get_output_exprs().at(i)))) {
-          LOG_WARN("failed to mark expr self produced", K(ret));
-        }
-      }
-      for (int64_t i = 0; OB_SUCC(ret) && i < op.get_stmt()->get_column_size(); ++i) {
-        ObExpr *rt_expr = nullptr;
-        const ColumnItem *col_item = op.get_stmt()->get_column_item(i);
-        CK (OB_NOT_NULL(col_item));
-        CK (OB_NOT_NULL(col_item->expr_));
-        if (OB_SUCC(ret)
-            && col_item->table_id_ == op.get_table_id()
-            && col_item->expr_->is_explicited_reference()) {
-          OZ (mark_expr_self_produced(col_item->expr_));
-          OZ (generate_rt_expr(*col_item->expr_, rt_expr));
-          OZ (spec.column_exprs_.push_back(rt_expr));
-        }
-      }
-    }
-  }
-  return ret;
-}
-
 int ObStaticEngineCG::generate_spec(ObLogJsonTable &op, ObJsonTableSpec &spec,
     const bool in_root_job)
 {
@@ -8966,12 +8898,6 @@ int ObStaticEngineCG::get_phy_op_type(ObLogicalOperator &log_op,
     }
     case log_op_def::LOG_FUNCTION_TABLE: {
       type = PHY_FUNCTION_TABLE;
-      // Check if this is an AI_SPLIT_DOCUMENT function table
-      ObLogFunctionTable &func_table = static_cast<ObLogFunctionTable &>(log_op);
-      const ObRawExpr *value_expr = func_table.get_value_expr();
-      if (OB_NOT_NULL(value_expr) && T_FUN_SYS_AI_SPLIT_DOCUMENT == value_expr->get_expr_type()) {
-        type = PHY_AI_SPLIT_DOCUMENT;
-      }
       break;
     }
     case log_op_def::LOG_JSON_TABLE: {

@@ -376,7 +376,6 @@ ob_set_subtarget(ob_sql engine_basic
   engine/basic/ob_group_join_buffer.cpp
   engine/basic/ob_hash_partitioning_infrastructure_op.cpp
   engine/basic/ob_json_table_op.cpp
-  engine/basic/ob_ai_split_document_op.cpp
   engine/basic/ob_limit_op.cpp
   engine/basic/ob_limit_vec_op.cpp
   engine/basic/ob_material_op_impl.cpp
@@ -961,8 +960,6 @@ ob_set_subtarget(ob_sql engine_expr
   engine/expr/ob_expr_ai/ob_expr_ai_embed.cpp
   engine/expr/ob_expr_ai/ob_expr_ai_rerank.cpp
   engine/expr/ob_expr_ai/ob_expr_ai_prompt.cpp
-  engine/expr/ob_expr_ai/ob_expr_ai_load_file.cpp
-  engine/expr/ob_expr_ai/ob_expr_ai_split_document.cpp
 )
 
 ob_set_subtarget(ob_sql_extra ALONE
